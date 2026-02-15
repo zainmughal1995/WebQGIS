@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { toggleLayer } from "../store/layersSlice";
 /* ---------------- Panel Wrapper ---------------- */
 
 function Panel({ title, children, defaultOpen = true }) {
@@ -64,15 +65,6 @@ function LayerIcon({ type }) {
   return null;
 }
 
-/* ---------------- Dummy Layers ---------------- */
-
-const DUMMY_LAYERS = [
-  { id: 1, name: "Countries", geomType: "polygon", visible: true },
-  { id: 2, name: "Rivers", geomType: "line", visible: true },
-  { id: 3, name: "Cities", geomType: "point", visible: true },
-  { id: 4, name: "Elevation", geomType: "raster", visible: false },
-];
-
 /* ---------------- Layers Panel ---------------- */
 
 function LayersPanel() {
@@ -101,7 +93,6 @@ function LayersPanel() {
 }
 
 /* ---------------- Main Sidebar ---------------- */
-
 export default function LeftSidebar() {
   return (
     <div
