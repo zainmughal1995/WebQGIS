@@ -13,7 +13,7 @@ export default function ToolButton({
       title={tooltip}
       disabled={disabled}
       className={`
-        w-[24px] h-[24px]
+        
         flex items-center justify-center m-1
         border border-transparent
         hover:bg-[#e6e6e6]
@@ -26,7 +26,7 @@ export default function ToolButton({
         src={icon}
         alt=""
         draggable={false}
-        className="w-[30px] h-[30px] pointer-events-none"
+        className="  h-5.5  pointer-events-none"
       />
     </button>
   );

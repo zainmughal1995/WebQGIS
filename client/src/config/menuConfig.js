@@ -14,7 +14,10 @@ export const MENU_CONFIG = {
 
   View: [{ label: "Zoom In" }, { label: "Zoom Out" }],
 
-  Layer: [{ label: "Add Layer" }, { label: "Remove Layer" }],
+  Layer: [
+    { label: "Add Layer" },
+    { label: "Create Layer", action: "createLayer" },
+  ],
 
   Settings: [{ label: "Options" }],
 

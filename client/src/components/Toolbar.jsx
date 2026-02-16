@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ToolButton from "./ToolButton";
-import { TOOLBAR_CONFIG } from "../toolbars/toolbarConfig";
+import { TOOLBAR_CONFIG } from "../config/toolbarConfig";
 
 export default function Toolbar() {
   const [active, setActive] = useState(null);
@@ -15,8 +15,8 @@ export default function Toolbar() {
       bg-[#ececec]
       border-b border-[#cfcfcf]
       flex items-center
-      px-[4px]
-      py-5
+      px-[7px]
+      py-6
       gap-[2px]
     "
     >
@@ -33,7 +33,7 @@ export default function Toolbar() {
           ))}
 
           {gi !== TOOLBAR_CONFIG.length - 1 && (
-            <div className="w-px h-[30px] bg-[#c8c8c8] mx-[12px]" />
+            <div className="w-px bg-[#c8c8c8] mx-[12px]" />
           )}
         </div>
       ))}

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { toggleLayer } from "../store/layersSlice";
+import LayersPanel from "./LayersPanel";
+
 /* ---------------- Panel Wrapper ---------------- */
 
 function Panel({ title, children, defaultOpen = true }) {
@@ -55,59 +55,20 @@ function BrowserTree() {
   );
 }
 
-/* ---------------- Layer Icons ---------------- */
-
-function LayerIcon({ type }) {
-  if (type === "point")
-    return <div className="w-3 h-3 rounded-full bg-red-500" />;
-  if (type === "line") return <div className="w-4 h-[2px] bg-blue-500" />;
-  if (type === "polygon") return <div className="w-3 h-3 bg-green-600" />;
-  return null;
-}
-
-/* ---------------- Layers Panel ---------------- */
-
-function LayersPanel() {
-  const layers = useSelector((s) => s.layers);
-  const dispatch = useDispatch();
-
-  return (
-    <div className="flex-1 bg-[#f8f8f8] py-1">
-      {layers.map((l) => (
-        <div
-          key={l.id}
-          className="flex items-center gap-2 px-2 py-[3px] hover:bg-[#dcdcdc]"
-        >
-          <input
-            type="checkbox"
-            checked={l.visible}
-            onChange={() => dispatch(toggleLayer(l.id))}
-          />
-
-          <LayerIcon type={l.geomType} />
-          <span>{l.name}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* ---------------- Main Sidebar ---------------- */
+
 export default function LeftSidebar() {
   return (
     <div
       className="
-      w-[260px] h-full
-      bg-[#f0f0f0]
-      border-r border-[#cfcfcf]
-      flex flex-col
-    "
+        w-[260px] h-full
+        bg-[#f0f0f0]
+        border-r border-[#cfcfcf]
+        flex flex-col
+      "
     >
       <Panel title="Browser">
         <BrowserTree />
-      </Panel>
-
-      <Panel title="Layers">
         <LayersPanel />
       </Panel>
     </div>

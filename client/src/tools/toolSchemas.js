@@ -180,4 +180,29 @@ export const TOOL_SCHEMAS = {
     ],
     runLabel: "Send",
   },
+
+  createLayer: {
+    title: "Create Layer",
+    toolTitle: "New Layer",
+    description: "Create a new empty layer",
+    runLabel: "Create",
+
+    fields: [
+      {
+        name: "name",
+        label: "Layer Name",
+        type: "text",
+      },
+      {
+        name: "geomType",
+        label: "Geometry",
+        type: "select", // 👈 must be select
+        options: [
+          { label: "Point", value: "point" },
+          { label: "Line", value: "line" },
+          { label: "Polygon", value: "polygon" },
+        ],
+      },
+    ],
+  },
 };

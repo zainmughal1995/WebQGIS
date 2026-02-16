@@ -13,17 +13,26 @@ export default function ToolModal({
   progress = 0,
   onClose,
   onRun,
-  runLabel = "Run", // 👈 ADD
-  toolIcon = ICON, // 👈 ADD
+  runLabel = "Run",
+  toolIcon = ICON,
 }) {
   const [tab, setTab] = useState("params");
 
+  // 👇 store field values
+  const [values, setValues] = useState(
+    Object.fromEntries(fields.map((f) => [f.name, f.value ?? ""])),
+  );
+
   if (!open) return null;
 
+  const handleRun = () => {
+    onRun(values);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[]">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[1000]">
       <div className="w-[900px] h-[560px] bg-[#efefef] border border-[#bfbfbf] shadow-lg flex flex-col text-[13px]">
-        {/* Title bar */}
+        {/* Title */}
         <div className="h-8 bg-[#1f1c8f] text-white flex items-center justify-between px-3">
           <div className="flex items-center gap-2">
             <img src={toolIcon} className="w-4 h-4" />
@@ -49,7 +58,14 @@ export default function ToolModal({
             {/* Content */}
             <div className="flex-1 overflow-auto p-3 bg-[#efefef] space-y-3">
               {tab === "params" &&
-                fields.map((f, i) => <RenderField key={i} {...f} />)}
+                fields.map((f) => (
+                  <RenderField
+                    key={f.name}
+                    {...f}
+                    value={values[f.name]}
+                    onChange={(v) => setValues({ ...values, [f.name]: v })}
+                  />
+                ))}
 
               {tab === "log" && (
                 <div className="bg-white border border-[#cfcfcf] h-full p-2 text-[12px]">
@@ -78,7 +94,7 @@ export default function ToolModal({
           </div>
 
           <Btn onClick={onClose}>Cancel</Btn>
-          <Btn onClick={onRun} primary>
+          <Btn onClick={handleRun} primary>
             {runLabel}
           </Btn>
           <Btn onClick={onClose}>Close</Btn>
@@ -106,21 +122,47 @@ function TabBtn({ t, tab, setTab, children }) {
   );
 }
 
-function RenderField({ type, label, value }) {
-  if (type === "checkbox")
+function RenderField({ type, label, value, onChange, options = [] }) {
+  if (type === "select") {
+    return (
+      <div>
+        <div className="mb-1">{label}</div>
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full border border-[#cfcfcf] px-2 py-1 bg-white"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
+  if (type === "checkbox") {
     return (
       <label className="flex items-center gap-2">
-        <input type="checkbox" defaultChecked={value} />
+        <input
+          type="checkbox"
+          checked={value}
+          onChange={(e) => onChange(e.target.checked)}
+        />
         {label}
       </label>
     );
+  }
 
+  // default = text
   return (
     <div>
       <div className="mb-1">{label}</div>
       <div className="flex gap-1">
         <input
-          defaultValue={value}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           className="flex-1 border border-[#cfcfcf] px-2 py-1 bg-white outline-none focus:border-[#2b79c2]"
         />
         <button className="w-7 border border-[#cfcfcf] bg-[#e9e9e9]">…</button>
