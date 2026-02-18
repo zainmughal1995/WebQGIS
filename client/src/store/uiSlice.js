@@ -1,15 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  modalOpen: false,
-  activeTool: null,
-  rightPanelOpen: true,
-  hasMap: false,
-};
-
 const uiSlice = createSlice({
   name: "ui",
-  initialState,
+
+  initialState: {
+    modalOpen: false,
+    activeTool: null,
+    rightPanelOpen: true,
+    hasMap: false,
+    basemap: "osm",
+  },
+
   reducers: {
     openModal: (state, action) => {
       state.modalOpen = true;
@@ -40,6 +41,10 @@ const uiSlice = createSlice({
     closeMap: (state) => {
       state.hasMap = false;
     },
+
+    setBasemap: (state, action) => {
+      state.basemap = action.payload;
+    }, // 👈 NEW
   },
 });
 
@@ -51,7 +56,7 @@ export const {
   toggleRightPanel,
   openMap,
   closeMap,
+  setBasemap,
 } = uiSlice.actions;
 
-// ✅ THIS LINE MUST EXIST
 export default uiSlice.reducer;

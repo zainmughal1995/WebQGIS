@@ -4,7 +4,7 @@ export const MENU_CONFIG = {
     { label: "Open...", shortcut: "Ctrl+O" },
     { type: "separator" },
     { label: "Save", shortcut: "Ctrl+S" },
-    { label: "Exit QGIS", shortcut: "Ctrl+Q" },
+    { label: "Logout", shortcut: "Ctrl+Q" },
   ],
 
   Edit: [

@@ -26,7 +26,7 @@ export default function ToolButton({
         src={icon}
         alt=""
         draggable={false}
-        className="  h-5.5  pointer-events-none"
+        className="  h-5  pointer-events-none"
       />
     </button>
   );

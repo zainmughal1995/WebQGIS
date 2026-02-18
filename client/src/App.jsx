@@ -1,66 +1,47 @@
-import Topbar from "./components/Topbar";
-import Toolbar from "./components/Toolbar";
-import LeftSidebar from "./components/LeftSideBar";
-import CenterPanel from "./components/CenterPanel";
-import RightPanel from "./components/RightPanel";
-import ToolModal from "./components/ToolModal";
-import LayersPanel from "./components/LayersPanel";
+import React from "react";
 
-import { useDispatch, useSelector } from "react-redux";
-import { closeModal } from "./store/uiSlice";
-import { addLayer } from "./store/layersSlice";
-import { TOOL_SCHEMAS } from "./tools/toolSchemas";
+import ProjectBar from "./components/common/ProjectBar";
+import Toolbar from "./components/toolbars/Toolbar";
+import SortableToolbarWrapper from "./components/toolbars/SortableToolbarWrapper";
 
-export default function App() {
-  const dispatch = useDispatch();
-  const { modalOpen, activeTool } = useSelector((s) => s.ui);
+import DigitizationToolbar from "./components/toolbars/digitization/DigitizationToolbar";
+import AnnotationsToolbar from "./components/toolbars/annotations/AnnotationsToolbar";
 
-  const schema = TOOL_SCHEMAS[activeTool];
+import LeftPanel from "./components/layout/LeftPanel";
+import RightPanel from "./components/layout/RightPanel";
+import CenterPanel from "./components/layout/CenterPanel";
 
-  // ✅ must be INSIDE component
-  const handleRun = (values) => {
-    if (activeTool === "createLayer") {
-      dispatch(
-        addLayer({
-          id: crypto.randomUUID(),
-          name: values.name || "Untitled Layer",
-          geomType: values.geomType || "point",
-          visible: true,
-          features: [],
-        }),
-      );
-    }
-
-    console.log("Run tool:", activeTool, values);
-
-    dispatch(closeModal());
+const App = () => {
+  const toolbarComponents = {
+    digitization: (
+      <SortableToolbarWrapper id="digitization">
+        <DigitizationToolbar />
+      </SortableToolbarWrapper>
+    ),
+    annotations: (
+      <SortableToolbarWrapper id="annotations">
+        <AnnotationsToolbar />
+      </SortableToolbarWrapper>
+    ),
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col overflow-hidden">
-      <Topbar />
-      <Toolbar />
+    <div className="flex flex-col h-screen overflow-hidden">
+      <ProjectBar />
 
-      {/* Main layout */}
+      <Toolbar toolbarComponents={toolbarComponents} />
+
       <div className="flex flex-1 overflow-hidden">
-        <LeftSidebar />
-        <CenterPanel />
+        <LeftPanel />
+
+        <div className="flex-1 overflow-hidden">
+          <CenterPanel />
+        </div>
+
         <RightPanel />
       </div>
-
-      {/* Generic Tool Modal */}
-      {schema && (
-        <ToolModal
-          open={modalOpen}
-          title={schema.title}
-          toolTitle={schema.toolTitle}
-          description={schema.description}
-          fields={schema.fields}
-          runLabel={schema.runLabel}
-          onClose={() => dispatch(closeModal())}
-          onRun={handleRun}
-        />
-      )}
     </div>
   );
-}
+};
+
+export default App;
