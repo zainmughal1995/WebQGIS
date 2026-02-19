@@ -4,8 +4,10 @@ import "leaflet-draw/dist/leaflet.draw.css";
 
 import ProjectBar from "./components/common/ProjectBar";
 import Toolbar from "./components/toolbars/Toolbar";
+
 import SortableToolbarWrapper from "./components/toolbars/SortableToolbarWrapper";
 
+import NavigationToolbar from "./components/toolbars/navigation/NavigationToolbar";
 import DigitizationToolbar from "./components/toolbars/digitization/DigitizationToolbar";
 import AnnotationsToolbar from "./components/toolbars/annotations/AnnotationsToolbar";
 import AttributesToolbar from "./components/toolbars/attributes/AttributesToolbar";
@@ -28,6 +30,13 @@ const App = () => {
           <AnnotationsToolbar />
         </SortableToolbarWrapper>
       ),
+
+      navigation: (
+        <SortableToolbarWrapper id="navigation">
+          <NavigationToolbar />
+        </SortableToolbarWrapper>
+      ),
+
       attributes: (
         <SortableToolbarWrapper id="attributes">
           <AttributesToolbar />
