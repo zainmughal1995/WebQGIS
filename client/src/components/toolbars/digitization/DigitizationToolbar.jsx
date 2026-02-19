@@ -5,6 +5,7 @@ import {
   startDrawing,
   stopDrawing,
   setActiveTool,
+  requestSaveEdits,
 } from "../../../store/uiSlice";
 import ToolButton from "../../common/ToolButton";
 
@@ -50,6 +51,7 @@ const DigitizationToolbar = () => {
         icon={ICONS.save}
         tooltip="Save Layer Edits"
         disabled={disabled}
+        onClick={() => dispatch(requestSaveEdits())}
       />
 
       {/* Add Feature */}

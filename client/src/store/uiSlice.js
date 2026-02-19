@@ -5,12 +5,13 @@ const uiSlice = createSlice({
 
   initialState: {
     modalOpen: false,
-    activeTool: null, // 🔥 NEW
+    activeTool: null,
     rightPanelOpen: true,
     hasMap: false,
     basemap: "osm",
     editingEnabled: false,
     drawingMode: false,
+    saveRequested: false, // 🔥 NEW
   },
 
   reducers: {
@@ -35,6 +36,14 @@ const uiSlice = createSlice({
         state.activeTool = null;
         state.drawingMode = false;
       }
+    },
+
+    requestSaveEdits: (state) => {
+      state.saveRequested = true;
+    },
+
+    clearSaveRequest: (state) => {
+      state.saveRequested = false;
     },
 
     openModal: (state, action) => {
@@ -76,7 +85,10 @@ const uiSlice = createSlice({
 export const {
   startDrawing,
   stopDrawing,
-  setActiveTool, // 🔥 NEW
+  setActiveTool,
+  toggleEditing,
+  requestSaveEdits, // 🔥
+  clearSaveRequest, // 🔥
   openModal,
   closeModal,
   openRightPanel,
@@ -85,7 +97,6 @@ export const {
   openMap,
   closeMap,
   setBasemap,
-  toggleEditing,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

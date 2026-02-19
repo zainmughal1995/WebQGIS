@@ -11,7 +11,7 @@ import L from "leaflet";
 import "leaflet-draw";
 import { useSelector, useDispatch } from "react-redux";
 import { addFeature, setLayerFeatures } from "../../store/featuresSlice";
-import { stopDrawing } from "../../store/uiSlice";
+import { stopDrawing, clearSaveRequest } from "../../store/uiSlice";
 import "leaflet/dist/leaflet.css";
 
 /* ---------------- Basemaps ---------------- */
@@ -61,7 +61,6 @@ function MapEvents({ setContextData }) {
       setContextData(null);
     },
   });
-
   return null;
 }
 
@@ -77,21 +76,31 @@ function DrawingController() {
   const editingEnabled = useSelector((s) => s.ui.editingEnabled);
   const drawingMode = useSelector((s) => s.ui.drawingMode);
   const activeTool = useSelector((s) => s.ui.activeTool);
+  const saveRequested = useSelector((s) => s.ui.saveRequested);
 
   const activeLayer = layers.find((l) => l.id === activeLayerId);
 
   const drawRef = useRef(null);
   const editableGroup = useRef(new L.FeatureGroup());
   const editHandler = useRef(null);
-  const pendingEdits = useRef(null); // 🔥 stores unsaved edits
+
+  /* ---------- INIT EDIT GROUP ---------- */
 
   useEffect(() => {
     map.addLayer(editableGroup.current);
   }, [map]);
 
-  /* -------- Sync Active Layer -------- */
+  /* ---------- SYNC ACTIVE LAYER ---------- */
 
   useEffect(() => {
+    // Disable editing before clearing layers
+    if (editHandler.current) {
+      try {
+        editHandler.current.disable();
+      } catch {}
+      editHandler.current = null;
+    }
+
     editableGroup.current.clearLayers();
 
     if (!featuresByLayer[activeLayerId]) return;
@@ -104,37 +113,27 @@ function DrawingController() {
     });
   }, [activeLayerId, featuresByLayer]);
 
-  /* -------- Draw -------- */
+  /* ---------- DRAW TOOL ---------- */
 
   useEffect(() => {
     if (!editingEnabled || !drawingMode || !activeLayer) return;
 
-    if (drawRef.current) {
-      drawRef.current.disable();
-      drawRef.current = null;
-    }
-
     if (activeLayer.geomType === "point")
       drawRef.current = new L.Draw.Marker(map);
-
     if (activeLayer.geomType === "line")
       drawRef.current = new L.Draw.Polyline(map);
-
     if (activeLayer.geomType === "polygon")
       drawRef.current = new L.Draw.Polygon(map);
 
     drawRef.current?.enable();
 
     const onCreated = (e) => {
-      const geojson = e.layer.toGeoJSON();
-
       dispatch(
         addFeature({
           layerId: activeLayerId,
-          feature: geojson,
+          feature: e.layer.toGeoJSON(),
         }),
       );
-
       dispatch(stopDrawing());
     };
 
@@ -145,14 +144,10 @@ function DrawingController() {
     };
   }, [editingEnabled, drawingMode, activeLayer]);
 
-  /* -------- Vertex Tool -------- */
+  /* ---------- VERTEX TOOL ---------- */
 
   useEffect(() => {
     if (!editingEnabled || activeTool !== "vertex") {
-      if (editHandler.current) {
-        editHandler.current.disable();
-        editHandler.current = null;
-      }
       map.dragging.enable();
       return;
     }
@@ -165,46 +160,39 @@ function DrawingController() {
 
     editHandler.current.enable();
 
-    const captureEdits = () => {
-      const updated = [];
-
-      editableGroup.current.eachLayer((layer) => {
-        updated.push(layer.toGeoJSON());
-      });
-
-      pendingEdits.current = updated; // 🔥 store edits but DO NOT save
-    };
-
-    map.on(L.Draw.Event.EDITSTOP, captureEdits);
-
     return () => {
-      map.off(L.Draw.Event.EDITSTOP, captureEdits);
       map.dragging.enable();
     };
-  }, [editingEnabled, activeTool]);
+  }, [editingEnabled, activeTool, map]);
 
-  /* -------- Save Handler (Toolbar Save Button will dispatch event) -------- */
+  /* ---------- SAVE ---------- */
 
   useEffect(() => {
-    const saveListener = () => {
-      if (!pendingEdits.current) return;
+    if (!saveRequested) return;
 
-      dispatch(
-        setLayerFeatures({
-          layerId: activeLayerId,
-          features: pendingEdits.current,
-        }),
-      );
+    const updated = [];
 
-      pendingEdits.current = null;
-    };
+    editableGroup.current.eachLayer((layer) => {
+      updated.push(layer.toGeoJSON());
+    });
 
-    window.addEventListener("saveLayerEdits", saveListener);
+    // Disable edit before Redux update
+    if (editHandler.current) {
+      try {
+        editHandler.current.disable();
+      } catch {}
+      editHandler.current = null;
+    }
 
-    return () => {
-      window.removeEventListener("saveLayerEdits", saveListener);
-    };
-  }, [dispatch, activeLayerId]);
+    dispatch(
+      setLayerFeatures({
+        layerId: activeLayerId,
+        features: updated,
+      }),
+    );
+
+    dispatch(clearSaveRequest());
+  }, [saveRequested, dispatch, activeLayerId]);
 
   return null;
 }
