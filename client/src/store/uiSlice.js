@@ -5,22 +5,38 @@ const uiSlice = createSlice({
 
   initialState: {
     modalOpen: false,
-    activeTool: null,
+    activeTool: null, // 🔥 NEW
     rightPanelOpen: true,
     hasMap: false,
     basemap: "osm",
     editingEnabled: false,
-    drawingMode: false, // 🔥 NEW
+    drawingMode: false,
   },
 
   reducers: {
     startDrawing: (state) => {
       state.drawingMode = true;
+      state.activeTool = "draw";
     },
 
     stopDrawing: (state) => {
       state.drawingMode = false;
+      if (state.activeTool === "draw") state.activeTool = null;
     },
+
+    setActiveTool: (state, action) => {
+      state.activeTool = action.payload;
+      state.drawingMode = action.payload === "draw";
+    },
+
+    toggleEditing: (state) => {
+      state.editingEnabled = !state.editingEnabled;
+      if (!state.editingEnabled) {
+        state.activeTool = null;
+        state.drawingMode = false;
+      }
+    },
+
     openModal: (state, action) => {
       state.modalOpen = true;
       state.activeTool = action.payload || null;
@@ -53,9 +69,6 @@ const uiSlice = createSlice({
 
     setBasemap: (state, action) => {
       state.basemap = action.payload;
-    }, // 👈 NEW
-    toggleEditing: (state) => {
-      state.editingEnabled = !state.editingEnabled;
     },
   },
 });
@@ -63,6 +76,7 @@ const uiSlice = createSlice({
 export const {
   startDrawing,
   stopDrawing,
+  setActiveTool, // 🔥 NEW
   openModal,
   closeModal,
   openRightPanel,

@@ -10,7 +10,7 @@ import {
 import L from "leaflet";
 import "leaflet-draw";
 import { useSelector, useDispatch } from "react-redux";
-import { addFeature } from "../../store/featuresSlice";
+import { addFeature, setLayerFeatures } from "../../store/featuresSlice";
 import { stopDrawing } from "../../store/uiSlice";
 import "leaflet/dist/leaflet.css";
 
@@ -38,7 +38,6 @@ function ResizeHandler() {
     const timer = setTimeout(() => {
       map.invalidateSize({ debounceMoveend: true });
     }, 50);
-
     return () => clearTimeout(timer);
   }, [rightPanelVisible, leftWidth, map]);
 
@@ -62,10 +61,11 @@ function MapEvents({ setContextData }) {
       setContextData(null);
     },
   });
+
   return null;
 }
 
-/* ---------------- Drawing Controller ---------------- */
+/* ---------------- Drawing + Editing Controller ---------------- */
 
 function DrawingController() {
   const map = useMap();
@@ -73,11 +73,38 @@ function DrawingController() {
 
   const activeLayerId = useSelector((s) => s.layers.activeLayerId);
   const layers = useSelector((s) => s.layers.items);
+  const featuresByLayer = useSelector((s) => s.features.byLayer);
   const editingEnabled = useSelector((s) => s.ui.editingEnabled);
   const drawingMode = useSelector((s) => s.ui.drawingMode);
+  const activeTool = useSelector((s) => s.ui.activeTool);
 
   const activeLayer = layers.find((l) => l.id === activeLayerId);
+
   const drawRef = useRef(null);
+  const editableGroup = useRef(new L.FeatureGroup());
+  const editHandler = useRef(null);
+  const pendingEdits = useRef(null); // 🔥 stores unsaved edits
+
+  useEffect(() => {
+    map.addLayer(editableGroup.current);
+  }, [map]);
+
+  /* -------- Sync Active Layer -------- */
+
+  useEffect(() => {
+    editableGroup.current.clearLayers();
+
+    if (!featuresByLayer[activeLayerId]) return;
+
+    featuresByLayer[activeLayerId].forEach((feature) => {
+      const geoLayer = L.geoJSON(feature);
+      geoLayer.eachLayer((layer) => {
+        editableGroup.current.addLayer(layer);
+      });
+    });
+  }, [activeLayerId, featuresByLayer]);
+
+  /* -------- Draw -------- */
 
   useEffect(() => {
     if (!editingEnabled || !drawingMode || !activeLayer) return;
@@ -87,21 +114,16 @@ function DrawingController() {
       drawRef.current = null;
     }
 
-    if (activeLayer.geomType === "point") {
+    if (activeLayer.geomType === "point")
       drawRef.current = new L.Draw.Marker(map);
-    }
 
-    if (activeLayer.geomType === "line") {
+    if (activeLayer.geomType === "line")
       drawRef.current = new L.Draw.Polyline(map);
-    }
 
-    if (activeLayer.geomType === "polygon") {
+    if (activeLayer.geomType === "polygon")
       drawRef.current = new L.Draw.Polygon(map);
-    }
 
-    if (drawRef.current) {
-      drawRef.current.enable();
-    }
+    drawRef.current?.enable();
 
     const onCreated = (e) => {
       const geojson = e.layer.toGeoJSON();
@@ -113,7 +135,6 @@ function DrawingController() {
         }),
       );
 
-      map.addLayer(e.layer);
       dispatch(stopDrawing());
     };
 
@@ -122,7 +143,68 @@ function DrawingController() {
     return () => {
       map.off(L.Draw.Event.CREATED, onCreated);
     };
-  }, [editingEnabled, drawingMode, activeLayer, map, dispatch, activeLayerId]);
+  }, [editingEnabled, drawingMode, activeLayer]);
+
+  /* -------- Vertex Tool -------- */
+
+  useEffect(() => {
+    if (!editingEnabled || activeTool !== "vertex") {
+      if (editHandler.current) {
+        editHandler.current.disable();
+        editHandler.current = null;
+      }
+      map.dragging.enable();
+      return;
+    }
+
+    map.dragging.disable();
+
+    editHandler.current = new L.EditToolbar.Edit(map, {
+      featureGroup: editableGroup.current,
+    });
+
+    editHandler.current.enable();
+
+    const captureEdits = () => {
+      const updated = [];
+
+      editableGroup.current.eachLayer((layer) => {
+        updated.push(layer.toGeoJSON());
+      });
+
+      pendingEdits.current = updated; // 🔥 store edits but DO NOT save
+    };
+
+    map.on(L.Draw.Event.EDITSTOP, captureEdits);
+
+    return () => {
+      map.off(L.Draw.Event.EDITSTOP, captureEdits);
+      map.dragging.enable();
+    };
+  }, [editingEnabled, activeTool]);
+
+  /* -------- Save Handler (Toolbar Save Button will dispatch event) -------- */
+
+  useEffect(() => {
+    const saveListener = () => {
+      if (!pendingEdits.current) return;
+
+      dispatch(
+        setLayerFeatures({
+          layerId: activeLayerId,
+          features: pendingEdits.current,
+        }),
+      );
+
+      pendingEdits.current = null;
+    };
+
+    window.addEventListener("saveLayerEdits", saveListener);
+
+    return () => {
+      window.removeEventListener("saveLayerEdits", saveListener);
+    };
+  }, [dispatch, activeLayerId]);
 
   return null;
 }
@@ -132,15 +214,15 @@ function DrawingController() {
 const MapView = () => {
   const basemap = useSelector((s) => s.map.basemap);
   const featuresByLayer = useSelector((s) => s.features.byLayer);
-  const current = BASEMAPS[basemap] || BASEMAPS.osm;
+  const activeLayerId = useSelector((s) => s.layers.activeLayerId);
+  const activeTool = useSelector((s) => s.ui.activeTool);
 
+  const current = BASEMAPS[basemap] || BASEMAPS.osm;
   const [contextData, setContextData] = useState(null);
 
   const copyCoords = () => {
     if (!contextData) return;
-
     const text = `${contextData.lat.toFixed(6)}, ${contextData.lng.toFixed(6)}`;
-
     navigator.clipboard.writeText(text);
     setContextData(null);
   };
@@ -164,21 +246,19 @@ const MapView = () => {
         <MapEvents setContextData={setContextData} />
         <DrawingController />
 
-        {/* Render Stored Features */}
-        {Object.entries(featuresByLayer).map(([layerId, features]) =>
-          features.map((feature, index) => (
+        {Object.entries(featuresByLayer).map(([layerId, features]) => {
+          if (layerId === activeLayerId && activeTool === "vertex") return null;
+
+          return features.map((feature, index) => (
             <GeoJSON key={`${layerId}-${index}`} data={feature} />
-          )),
-        )}
+          ));
+        })}
       </MapContainer>
 
       {contextData && (
         <div
           className="fixed bg-white border border-gray-300 shadow-md text-[12px] z-[9999]"
-          style={{
-            top: contextData.y,
-            left: contextData.x,
-          }}
+          style={{ top: contextData.y, left: contextData.x }}
         >
           <div
             onClick={copyCoords}

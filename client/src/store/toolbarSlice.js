@@ -1,12 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  order: ["digitization", "annotations", "attributes", "navigation"],
+  order: ["digitization", "annotations", "attributes", "navigation", "project"],
   toolbars: {
     digitization: true,
     annotations: true,
     attributes: true,
     navigation: true,
+    project: true,
   },
 };
 

@@ -4,6 +4,7 @@ import {
   toggleEditing,
   startDrawing,
   stopDrawing,
+  setActiveTool,
 } from "../../../store/uiSlice";
 import ToolButton from "../../common/ToolButton";
 
@@ -29,7 +30,7 @@ const DigitizationToolbar = () => {
   const activeLayerId = useSelector((s) => s.layers.activeLayerId);
   const editingEnabled = useSelector((s) => s.ui.editingEnabled);
   const drawingMode = useSelector((s) => s.ui.drawingMode);
-
+  const activeTool = useSelector((s) => s.ui.activeTool);
   const noLayer = !activeLayerId;
   const disabled = noLayer || !editingEnabled;
 
@@ -65,6 +66,14 @@ const DigitizationToolbar = () => {
         icon={ICONS.vertex}
         tooltip="Vertex Tool"
         disabled={disabled}
+        active={activeTool === "vertex"}
+        onClick={() =>
+          dispatch(
+            activeTool === "vertex"
+              ? setActiveTool(null)
+              : setActiveTool("vertex"),
+          )
+        }
       />
 
       {/* Delete Selected */}

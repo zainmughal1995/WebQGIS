@@ -11,6 +11,7 @@ import NavigationToolbar from "./components/toolbars/navigation/NavigationToolba
 import DigitizationToolbar from "./components/toolbars/digitization/DigitizationToolbar";
 import AnnotationsToolbar from "./components/toolbars/annotations/AnnotationsToolbar";
 import AttributesToolbar from "./components/toolbars/attributes/AttributesToolbar";
+import ProjectToolbar from "./components/toolbars/project/ProjectToolbar";
 
 import LeftPanel from "./components/layout/LeftPanel";
 import RightPanel from "./components/layout/RightPanel";
@@ -40,6 +41,12 @@ const App = () => {
       attributes: (
         <SortableToolbarWrapper id="attributes">
           <AttributesToolbar />
+        </SortableToolbarWrapper>
+      ),
+
+      project: (
+        <SortableToolbarWrapper id="project">
+          <ProjectToolbar />
         </SortableToolbarWrapper>
       ),
     }),
