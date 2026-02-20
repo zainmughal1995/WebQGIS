@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleLayer, setActiveLayer } from "../../../store/layersSlice";
-
 import { openAttributeTable } from "../../../store/uiSlice";
 
 /* ---------------- Layer Icon ---------------- */
@@ -35,7 +34,7 @@ function Divider() {
 
 export default function LayersPanel() {
   const { items: layers, activeLayerId } = useSelector((s) => s.layers);
-  const editingEnabled = useSelector((s) => s.ui.editingEnabled); // 🔥 NEW
+  const editingEnabled = useSelector((s) => s.ui.editingEnabled);
   const dispatch = useDispatch();
 
   const [contextMenu, setContextMenu] = useState(null);
@@ -44,7 +43,6 @@ export default function LayersPanel() {
   const handleContextMenu = (e, layer) => {
     e.preventDefault();
 
-    // 🚫 Block layer switching if editing
     if (!editingEnabled) {
       dispatch(setActiveLayer(layer.id));
     }
@@ -58,13 +56,10 @@ export default function LayersPanel() {
 
   const closeMenu = () => setContextMenu(null);
 
-  /* ---------- Prevent Overflow ---------- */
-
   useEffect(() => {
     if (!contextMenu || !menuRef.current) return;
 
     const rect = menuRef.current.getBoundingClientRect();
-
     let newX = contextMenu.x;
     let newY = contextMenu.y;
 
@@ -87,45 +82,56 @@ export default function LayersPanel() {
 
   return (
     <div
-      className="relative flex-1 bg-[#f8f8f8] text-[12px]"
+      className="flex flex-col h-full bg-[#f8f8f8] text-[12px] relative"
       onClick={closeMenu}
     >
-      {layers.map((l) => {
-        const isActive = l.id === activeLayerId;
+      {/* Header */}
+      <div className="bg-[#e6e6e6] border-b px-2 py-1 flex items-center justify-between">
+        <span className="font-medium text-[13px]">Layers</span>
+        <div className="flex gap-1">
+          <div className="w-4 h-4 bg-gray-400 rounded-sm" />
+          <div className="w-4 h-4 bg-gray-400 rounded-sm" />
+          <div className="w-4 h-4 bg-gray-400 rounded-sm" />
+        </div>
+      </div>
 
-        return (
-          <div
-            key={l.id}
-            onClick={() => {
-              if (!editingEnabled) {
-                dispatch(setActiveLayer(l.id));
-              }
-            }}
-            onContextMenu={(e) => handleContextMenu(e, l)}
-            className={`flex items-center gap-2 px-2 py-[3px]
-              ${
-                editingEnabled
-                  ? "cursor-not-allowed opacity-60"
-                  : "cursor-pointer hover:bg-[#dcdcdc]"
-              }
-              ${isActive ? "bg-[#c9e6ff]" : ""}
-            `}
-          >
-            <input
-              type="checkbox"
-              checked={l.visible}
-              onChange={() => dispatch(toggleLayer(l.id))}
-              onClick={(e) => e.stopPropagation()}
-            />
+      {/* Layer List */}
+      <div className="flex-1 overflow-auto">
+        {layers.map((l) => {
+          const isActive = l.id === activeLayerId;
 
-            <LayerIcon type={l.geomType} />
-            <span>{l.name}</span>
-          </div>
-        );
-      })}
+          return (
+            <div
+              key={l.id}
+              onClick={() => {
+                if (!editingEnabled) {
+                  dispatch(setActiveLayer(l.id));
+                }
+              }}
+              onContextMenu={(e) => handleContextMenu(e, l)}
+              className={`flex items-center gap-2 px-2 py-[3px]
+                ${
+                  editingEnabled
+                    ? "cursor-not-allowed opacity-60"
+                    : "cursor-pointer hover:bg-[#dcdcdc]"
+                }
+                ${isActive ? "bg-[#c9e6ff]" : ""}
+              `}
+            >
+              <input
+                type="checkbox"
+                checked={l.visible}
+                onChange={() => dispatch(toggleLayer(l.id))}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <LayerIcon type={l.geomType} />
+              <span>{l.name}</span>
+            </div>
+          );
+        })}
+      </div>
 
-      {/* ---------- Context Menu ---------- */}
-
+      {/* Context Menu */}
       {contextMenu && (
         <div
           ref={menuRef}
@@ -137,11 +143,6 @@ export default function LayersPanel() {
         >
           <MenuItem label="Zoom to Layer(s)" />
           <MenuItem label="Show in Overview" />
-          <MenuItem label="Copy Layer" />
-          <MenuItem label="Rename Layer" />
-          <MenuItem label="Zoom to Native Resolution (100%)" />
-          <MenuItem label="Stretch Using Current Extent" />
-          <MenuItem label="Load Raster Attribute Table from VAT.DBF" />
 
           <Divider />
 
@@ -152,18 +153,6 @@ export default function LayersPanel() {
               closeMenu();
             }}
           />
-
-          <MenuItem label="Duplicate Layer" />
-          <MenuItem label="Remove Layer..." />
-          <MenuItem label="Change Data Source..." />
-
-          <Divider />
-
-          <MenuItem label="Set Layer Scale Visibility..." />
-          <MenuItem label="Layer CRS ▶" />
-          <MenuItem label="Export ▶" />
-          <MenuItem label="Styles ▶" />
-          <MenuItem label="Add Layer Notes..." />
         </div>
       )}
     </div>
