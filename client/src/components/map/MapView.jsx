@@ -1,7 +1,7 @@
 // MapView.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, ZoomControl, GeoJSON } from "react-leaflet";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -10,12 +10,19 @@ import ResizeHandler from "./ResizeHandler";
 import MapEvents from "./MapEvents";
 import DrawingController from "./DrawingController";
 
+// ✅ NEW IMPORT (project sync only)
+import { updateProjectLayers } from "../../store/projectSlice";
+
 const MapView = () => {
+  const dispatch = useDispatch(); // ✅ NEW
   const basemap = useSelector((s) => s.map.basemap);
   const { items: layers, activeLayerId } = useSelector((s) => s.layers);
   const featuresByLayer = useSelector((s) => s.features.byLayer);
   const activeTool = useSelector((s) => s.ui.activeTool);
   const selected = useSelector((s) => s.features.selected);
+
+  // ✅ NEW
+  const currentProject = useSelector((s) => s.project.currentProject);
 
   const current = BASEMAPS[basemap] || BASEMAPS.osm;
   const [contextData, setContextData] = useState(null);
@@ -28,6 +35,22 @@ const MapView = () => {
     navigator.clipboard.writeText(text);
     setContextData(null);
   };
+
+  useEffect(() => {
+    if (!currentProject) return;
+
+    const existing = currentProject.layers;
+
+    const snapshot = {
+      layers,
+      featuresByLayer,
+    };
+
+    // Prevent infinite loop by shallow comparing
+    if (JSON.stringify(existing) !== JSON.stringify(snapshot)) {
+      dispatch(updateProjectLayers(snapshot));
+    }
+  }, [layers, featuresByLayer, currentProject, dispatch]);
 
   return (
     <div className="relative h-full w-full">
