@@ -4,15 +4,16 @@ import { setActiveTool } from "../../../store/uiSlice";
 import { clearAllSelections } from "../../../store/featuresSlice";
 import ToolButton from "../../common/ToolButton";
 
+import selectClickIcon from "../../../assets/icons/toolbar_selection/select_feature.png";
+import selectByValueIcon from "../../../assets/icons/toolbar_selection/select_by_value.png";
+import deselectAllIcon from "../../../assets/icons/toolbar_selection/deselect_all.png";
+import selectByLocationIcon from "../../../assets/icons/toolbar_selection/select_by_location.png";
+
 const ICONS = {
-  selectClick:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mouse-pointer.svg",
-  selectByValue:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/filter.svg",
-  deselectAll:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/x-circle.svg",
-  selectByLocation:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/map-pin.svg",
+  selectClick: selectClickIcon,
+  selectByValue: selectByValueIcon,
+  deselectAll: deselectAllIcon,
+  selectByLocation: selectByLocationIcon,
 };
 
 const SelectionToolbar = () => {

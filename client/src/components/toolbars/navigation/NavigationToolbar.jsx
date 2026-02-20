@@ -1,34 +1,40 @@
 import React from "react";
 import ToolButton from "../../common/ToolButton";
 
+import panIcon from "../../../assets/icons/toolbar_navigation/pan_map.png";
+import panToSelectedIcon from "../../../assets/icons/toolbar_navigation/pan_to_selection.png";
+import zoomInIcon from "../../../assets/icons/toolbar_navigation/zoom_in.png";
+import zoomOutIcon from "../../../assets/icons/toolbar_navigation/zoom_out.png";
+import zoomFullIcon from "../../../assets/icons/toolbar_navigation/zoom_full.png";
+import zoomToSelectionIcon from "../../../assets/icons/toolbar_navigation/zoom_to_selection.png";
+import zoomToLayerIcon from "../../../assets/icons/toolbar_navigation/zoom_to_layer.png";
+import zoomNativeIcon from "../../../assets/icons/toolbar_navigation/zoom_to_native_resolution.png";
+import zoomLastIcon from "../../../assets/icons/toolbar_navigation/zoom_last.png";
+import zoomNextIcon from "../../../assets/icons/toolbar_navigation/zoom_next.png";
+import newMapIcon from "../../../assets/icons/toolbar_navigation/new_map_view.png";
+import new3DIcon from "../../../assets/icons/toolbar_navigation/new_3d_map_view.png";
+import newBookmarkIcon from "../../../assets/icons/toolbar_navigation/new_spatial_bookmark.png";
+import showBookmarksIcon from "../../../assets/icons/toolbar_navigation/show_spatial_bookmarks.png";
+import temporalIcon from "../../../assets/icons/toolbar_navigation/temporal_controller.png";
+import refreshIcon from "../../../assets/icons/toolbar_navigation/refresh.png";
+
 const ICONS = {
-  pan: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/move.svg",
-  panToSelected:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/locate.svg",
-  zoomIn: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/zoom-in.svg",
-  zoomOut:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/zoom-out.svg",
-  zoomFull:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/maximize.svg",
-  zoomToSelection:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/target.svg",
-  zoomToLayer:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layers.svg",
-  zoomNative:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/square-dashed.svg",
-  zoomLast:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/arrow-left.svg",
-  zoomNext:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/arrow-right.svg",
-  newMap: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/map.svg",
-  new3D: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/box.svg",
-  newBookmark:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/bookmark-plus.svg",
-  showBookmarks:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/bookmark.svg",
-  temporal: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/clock.svg",
-  refresh:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/refresh-cw.svg",
+  pan: panIcon,
+  panToSelected: panToSelectedIcon,
+  zoomIn: zoomInIcon,
+  zoomOut: zoomOutIcon,
+  zoomFull: zoomFullIcon,
+  zoomToSelection: zoomToSelectionIcon,
+  zoomToLayer: zoomToLayerIcon,
+  zoomNative: zoomNativeIcon,
+  zoomLast: zoomLastIcon,
+  zoomNext: zoomNextIcon,
+  newMap: newMapIcon,
+  new3D: new3DIcon,
+  newBookmark: newBookmarkIcon,
+  showBookmarks: showBookmarksIcon,
+  temporal: temporalIcon,
+  refresh: refreshIcon,
 };
 
 const NavigationToolbar = () => {

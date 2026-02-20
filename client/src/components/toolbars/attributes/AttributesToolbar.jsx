@@ -2,20 +2,24 @@ import React from "react";
 import { useSelector } from "react-redux";
 import ToolButton from "../../common/ToolButton";
 
+import identifyFeaturesIcon from "../../../assets/icons/toolbar_attributes/identify_features.png";
+import fieldCalcIcon from "../../../assets/icons/toolbar_attributes/open_field_calculator.png";
+import toolboxIcon from "../../../assets/icons/toolbar_attributes/toolbox.png";
+import statsIcon from "../../../assets/icons/toolbar_attributes/statistical_summary.png";
+import attributeTableIcon from "../../../assets/icons/toolbar_attributes/open_attribute_table.png";
+import measureIcon from "../../../assets/icons/toolbar_attributes/measure_line.png";
+import mapTipsIcon from "../../../assets/icons/toolbar_attributes/show_map_tips.png";
+import featureActionIcon from "../../../assets/icons/toolbar_attributes/run_feature_action.png";
+
 const ICONS = {
-  identify:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/crosshair.svg",
-  fieldCalc:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/calculator.svg",
-  toolbox: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/tool.svg",
-  stats:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/bar-chart-3.svg",
-  attributeTable:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/table.svg",
-  measure: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ruler.svg",
-  mapTips: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/info.svg",
-  featureAction:
-    "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/play.svg",
+  identify: identifyFeaturesIcon,
+  fieldCalc: fieldCalcIcon,
+  toolbox: toolboxIcon,
+  stats: statsIcon,
+  attributeTable: attributeTableIcon,
+  measure: measureIcon,
+  mapTips: mapTipsIcon,
+  featureAction: featureActionIcon,
 };
 
 const AnalysisToolbar = () => {
